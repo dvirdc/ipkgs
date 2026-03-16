@@ -32,7 +32,6 @@ class Installer:
         self,
         name: str,
         version: str,
-        tarball_url: str,
         integrity: str,
         progress: Progress,
     ) -> None:
@@ -51,7 +50,7 @@ class Installer:
             def on_chunk(n: int) -> None:
                 progress.advance(task, n)
 
-            await self._client.download_tarball(tarball_url, tarball_path, on_chunk)
+            await self._client.download_tarball(name, version, tarball_path, on_chunk)
 
             self._verify_integrity(tarball_path, integrity)
 

@@ -2,29 +2,34 @@
 
 from __future__ import annotations
 
-import asyncio
-
 import click
 
 from ipkgs.cli.main import IpkgsContext
-from ipkgs.exceptions import IpkgsError
 from ipkgs.registry.auth import AuthManager
 from ipkgs.utils.console import print_success, print_error
 
 
 @click.command("login")
-@click.option("--username", "-u", prompt=True)
-@click.option("--password", "-p", prompt=True, hide_input=True)
+@click.option("--token", "-t", prompt="API token", hide_input=True,
+              help="API token from ipkgs.com/settings/tokens")
 @click.pass_obj
-def login(ctx: IpkgsContext, username: str, password: str) -> None:
-    """Authenticate with the ipkgs.com registry."""
-    try:
-        auth = AuthManager(ctx.registry)
-        token = asyncio.run(auth.login(username, password))
-        print_success(ctx.console, f"Logged in as [bold]{username}[/]")
-    except IpkgsError as exc:
-        print_error(ctx.console, str(exc))
+def login(ctx: IpkgsContext, token: str) -> None:
+    """Save an API token for the ipkgs.com registry.
+
+    Generate a token at: https://ipkgs.com/settings/tokens
+
+    \b
+    Examples:
+      ipkgs login --token <your-token>
+      IPKGS_TOKEN=<your-token> ipkgs publish   # alternative: env var
+    """
+    token = token.strip()
+    if not token:
+        print_error(ctx.console, "Token cannot be empty.")
         raise SystemExit(1)
+    auth = AuthManager(ctx.registry)
+    auth.set_token(token)
+    print_success(ctx.console, "Token saved. You can now run [cyan]ipkgs publish[/].")
 
 
 @click.command("logout")

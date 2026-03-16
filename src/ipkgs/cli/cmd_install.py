@@ -119,7 +119,6 @@ async def _install(
             await installer.install_package(
                 name=name,
                 version=version,
-                tarball_url=pkg_ver.tarball_url,
                 integrity=pkg_ver.integrity,
                 progress=progress,
             )
@@ -127,7 +126,7 @@ async def _install(
             from ipkgs.core.lockfile import LockedPackage
             lock.packages[name] = LockedPackage(
                 version=version,
-                resolved=pkg_ver.tarball_url,
+                resolved=f"{ctx.registry}/packages/{name}/{version}/download",
                 integrity=pkg_ver.integrity,
                 dependencies=pkg_ver.dependencies,
             )

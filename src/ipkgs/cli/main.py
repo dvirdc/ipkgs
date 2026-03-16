@@ -25,7 +25,7 @@ class IpkgsContext:
     invoke_without_command=True,
 )
 @click.version_option(__version__, "-V", "--version")
-@click.option("--registry", default="https://api.ipkgs.com/v1", envvar="IPKGS_REGISTRY", show_default=True)
+@click.option("--registry", default="https://api.ipkgs.com/api/v1", envvar="IPKGS_REGISTRY", show_default=True)
 @click.option("--no-color", is_flag=True, default=False)
 @click.option("--verbose", "-v", is_flag=True, default=False)
 @click.pass_context

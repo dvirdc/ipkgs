@@ -83,7 +83,7 @@ async def _update(ctx: IpkgsContext, packages: tuple[str, ...], use_latest: bool
             continue
 
         pkg_ver = meta.versions[new_version]
-        updates.append((name, old_version, new_version, pkg_ver.tarball_url, pkg_ver.integrity))
+        updates.append((name, old_version, new_version, pkg_ver.integrity))
 
     if not updates:
         print_success(ctx.console, "All packages are up to date.")
@@ -93,22 +93,21 @@ async def _update(ctx: IpkgsContext, packages: tuple[str, ...], use_latest: bool
     table.add_column("Package", style="cyan")
     table.add_column("From", style="yellow")
     table.add_column("To", style="green")
-    for name, old, new, _, _ in updates:
+    for name, old, new, _ in updates:
         table.add_row(name, old, new)
     ctx.console.print(table)
 
     with make_progress(ctx.console) as progress:
-        for name, old_version, new_version, tarball_url, integrity in updates:
+        for name, old_version, new_version, integrity in updates:
             await installer.install_package(
                 name=name,
                 version=new_version,
-                tarball_url=tarball_url,
                 integrity=integrity,
                 progress=progress,
             )
             lock.packages[name] = LockedPackage(
                 version=new_version,
-                resolved=tarball_url,
+                resolved=f"{ctx.registry}/packages/{name}/{new_version}/download",
                 integrity=integrity,
             )
 

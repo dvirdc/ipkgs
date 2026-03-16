@@ -4,10 +4,7 @@ from __future__ import annotations
 
 import os
 
-import httpx
 import keyring
-
-from ipkgs.exceptions import AuthenticationError
 
 SERVICE_NAME = "ipkgs"
 
@@ -31,17 +28,3 @@ class AuthManager:
             keyring.delete_password(SERVICE_NAME, self._registry)
         except keyring.errors.PasswordDeleteError:
             pass
-
-    async def login(self, username: str, password: str) -> str:
-        async with httpx.AsyncClient(timeout=15.0) as client:
-            resp = await client.post(
-                f"{self._registry}/auth/token",
-                json={"username": username, "password": password},
-            )
-            if resp.status_code in (401, 403):
-                raise AuthenticationError("Invalid username or password.")
-            if resp.status_code >= 400:
-                raise AuthenticationError(f"Login failed: {resp.text}")
-            token: str = resp.json()["token"]
-            self.set_token(token)
-            return token
